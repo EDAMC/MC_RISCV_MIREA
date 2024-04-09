@@ -1,2 +1,2 @@
-# M-_RISCV_MIREA
+# MC_RISCV_MIREA
 Мастер класс по архитектуре RISC-V для студентов МИРЭА
