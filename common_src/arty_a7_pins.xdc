@@ -37,10 +37,10 @@ set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33} [get_ports {LED[3]}]
 
 ## Buttons
 set_property -dict {PACKAGE_PIN C2 IOSTANDARD LVCMOS33} [get_ports CPU_RESETN]
-set_property -dict {PACKAGE_PIN D9 IOSTANDARD LVCMOS33} [get_ports BTN_0]
-set_property -dict {PACKAGE_PIN C9 IOSTANDARD LVCMOS33} [get_ports BTN_1]
-set_property -dict {PACKAGE_PIN B9 IOSTANDARD LVCMOS33} [get_ports BTN_2]
-set_property -dict {PACKAGE_PIN B8 IOSTANDARD LVCMOS33} [get_ports BTN_3]
+set_property -dict {PACKAGE_PIN D9 IOSTANDARD LVCMOS33} [get_ports BTN[0]]
+set_property -dict {PACKAGE_PIN C9 IOSTANDARD LVCMOS33} [get_ports BTN[1]]
+set_property -dict {PACKAGE_PIN B9 IOSTANDARD LVCMOS33} [get_ports BTN[2]]
+set_property -dict {PACKAGE_PIN B8 IOSTANDARD LVCMOS33} [get_ports BTN[3]]
 
 ## Pmod Header JA
 set_property -dict { PACKAGE_PIN G13   IOSTANDARD LVCMOS33 } [get_ports { JA[0] }]; #IO_0_15 Sch=ja[1]
