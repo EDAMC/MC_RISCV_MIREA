@@ -9,7 +9,7 @@ module seven_segment_display
 )
 (
     input  clk,
-    input  rst_n,
+    input  rst,
 
     input  [w_digit * 4 - 1:0] number,
     input  [w_digit     - 1:0] dots,
@@ -52,7 +52,7 @@ module seven_segment_display
 
 
     always_ff @ (posedge clk)
-        if (!rst_n)
+        if (rst)
             cnt <= '0;
         else if (cnt == cnt_max)
             cnt <= '0;
@@ -67,7 +67,7 @@ module seven_segment_display
 
 
     always_ff @ (posedge clk)
-        if (!rst_n)
+        if (rst)
             r_number <= '0;
         else if (enable)
             r_number <= number;
@@ -78,7 +78,7 @@ module seven_segment_display
 
 
     always_ff @ (posedge clk)
-        if (!rst_n)
+        if (rst)
             index <= '0;
         else if (cnt[15:0] == 16'b0) // Perhaps a check is needed that w_cnt >= 16
             index <= (index == w_index' (w_digit - 1) ?
