@@ -27,7 +27,7 @@ module tb;
         .w_digit ( w_digit ),
         .w_gpio  ( w_gpio  )
     )
-    top_module
+    i_top
     (
         .clk      ( clk ),
         .slow_clk ( clk ),

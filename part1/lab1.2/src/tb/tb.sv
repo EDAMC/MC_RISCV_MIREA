@@ -15,6 +15,8 @@ module tb;
     logic [3:0] key;
     logic [3:0] sw;
     logic [3:0] led;
+    logic [3:0] digit;
+    logic [7:0] abcdefgh;
     
     //------------------------------------------------------------------------
 
@@ -34,7 +36,9 @@ module tb;
         .rst      ( rst ),
         .key      ( key ),
         .sw       ( sw  ),
-        .led      ( led )
+        .led      ( led ),
+        .digit    ( digit),
+        .abcdefgh ( abcdefgh)
     );
 
     //------------------------------------------------------------------------

@@ -15,7 +15,31 @@ module tb;
     logic [3:0] key;
     logic [3:0] sw;
     logic [3:0] led;
+    logic [3:0] digit;
+    logic [7:0] abcdefgh;
     
+    //------------------------------------------------------------------------
+
+    top
+    # (
+        .clk_mhz ( clk_mhz ),
+        .w_key   ( w_key   ),
+        .w_sw    ( w_sw    ),
+        .w_led   ( w_led   ),
+        .w_digit ( w_digit ),
+        .w_gpio  ( w_gpio  )
+    )
+    i_top
+    (
+        .clk      ( clk ),
+        .slow_clk ( clk ),
+        .rst      ( rst ),
+        .key      ( key ),
+        .sw       ( sw  ),
+        .digit    ( digit),
+        .abcdefgh ( abcdefgh)
+    );
+
     //------------------------------------------------------------------------
 
     initial
