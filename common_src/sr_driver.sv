@@ -25,9 +25,8 @@ always@ (posedge clk or negedge rst_n_i)
     else if (load_enable)  ser <= data_in;             // load parallel data
     else                   ser <= {ser[0], ser[15:1]}; // serialize parallel data
 
- always@ (posedge clk or negedge rst_n_i)
-     if      (!rst_n_i)     rclk <= '0;
-     else if (cnt == 1)     rclk <= !rclk;
+ always@ (posedge clk)
+     if (cnt == 1) rclk <= !rclk;
 
 
 endmodule

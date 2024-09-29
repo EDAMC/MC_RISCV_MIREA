@@ -69,10 +69,19 @@ module top
     wire [31:0] regData;  // debug access reg data
     wire [31:0] imAddr;   // instruction memory address
     wire [31:0] imData;   // instruction memory data
+    
+    //------------------------------------------------------------------------
+    
+    wire cpu_slow_clk;
+    
+    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (1))
+    cpu_slow_clk_i (.slow_clk (cpu_slow_clk), .*);
+
+    //------------------------------------------------------------------------
 
     sr_cpu cpu
     (
-        .clk     ( slow_clk ),
+        .clk     ( cpu_slow_clk ),
         .rst     ( rst      ),
         .regAddr ( regAddr  ),
         .regData ( regData  ),

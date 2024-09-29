@@ -71,7 +71,7 @@ module arty_a7_wrapper
     wire slow_clk;
 
     slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (500000))
-    i_slow_clk_gen (.slow_clk (slow_clk), .*);
+    sr_slow_clk_i  (.slow_clk (slow_clk), .*);
 
     //------------------------------------------------------------------------
     
@@ -90,7 +90,7 @@ module arty_a7_wrapper
     logic [7:0] abcdefgh;
     
     logic [3:0]  dots = 4'b1111;   
-    logic [15:0] display_data = { ~reverse_digit, dots, ~abcdefgh };
+    logic [15:0] display_data = { reverse_digit, dots, ~abcdefgh };
     
     sr_driver sr_driver
     (

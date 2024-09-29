@@ -88,7 +88,7 @@ module top
     seven_seg_encoding_e;
 
     assign abcdefgh = key [0] ? P : F;
-    assign digit    = key [1] ? 4'b1101 : 4'b1110;
+    assign digit    = key [1] ? 4'b0010 : 4'b0001;
 
     // Exercise 1: Display the first letters
     // of your first name and last name instead.

@@ -29,7 +29,7 @@ rars:
 
 #########################################################
 # software build
-build: program.hex
+build: clean program.hex
 
 # make program.hex - compile to hex memory image using RARS
 #  java -jar ../common/rars1_4.jar nc a dump .text HexText program.hex main.S
@@ -43,4 +43,4 @@ program.hex: main.S
 # make board - copy to board
 #  copies program.hext to board/program where is will be searched with synthesis tools
 board: program.hex
-	cp ./program.hex ../../../part3/src/cpu/
+	cp ./program.hex ../../../part3/lab3.1/src/cpu
