@@ -4,3 +4,6 @@
 *.cache
 *.runs
 *.srcs
+*vivado*
+*xvlog*
+*xsim*
