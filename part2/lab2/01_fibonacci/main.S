@@ -1,10 +1,3 @@
-# RISC-V fibonacci program
-#
-# Stanislav Zhelnio, 2020
-#
-
-            .text
-
 start:      mv    t0, zero
             li    t1, 1
             mv    a0, t1

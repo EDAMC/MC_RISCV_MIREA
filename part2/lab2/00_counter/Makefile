@@ -38,9 +38,9 @@ build: clean program.hex
 #    a                               - assemble only, do not simulate
 #    dump .text HexText program.hex  - dump segment .text to program.hex file in HexText format
 program.hex: main.S
-	$(RARS) nc a dump .text HexText program.hex main.S
+	$(RARS) nc a dump .text HexText memfile.dat main.S
 
 # make board - copy to board
 #  copies program.hext to board/program where is will be searched with synthesis tools
 board: program.hex
-	cp ./program.hex ../../../part3/lab3.1/src/cpu
+	cp ./memfile.dat ../../../part3/lab3.1/src/cpu

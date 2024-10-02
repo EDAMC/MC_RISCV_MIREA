@@ -74,7 +74,7 @@ module top
     
     wire cpu_slow_clk;
     
-    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (1))
+    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (2))
     cpu_slow_clk_i (.slow_clk (cpu_slow_clk), .*);
 
     //------------------------------------------------------------------------
@@ -82,11 +82,11 @@ module top
     sr_cpu cpu
     (
         .clk     ( cpu_slow_clk ),
-        .rst     ( rst      ),
-        .regAddr ( regAddr  ),
-        .regData ( regData  ),
-        .imAddr  ( imAddr   ),
-        .imData  ( imData   )
+        .rst     ( rst          ),
+        .regAddr ( regAddr      ),
+        .regData ( regData      ),
+        .imAddr  ( imAddr       ),
+        .imData  ( imData       )
     );
 
     instruction_rom # (.SIZE (64)) rom
@@ -97,12 +97,12 @@ module top
 
     //------------------------------------------------------------------------
 
-    assign regAddr = 5'd10;  // a0
+    assign regAddr = { key[1], sw };  // a0
 
     localparam w_number = w_digit * 4;
 
     wire [w_number - 1:0] number
-        = w_number' ( key [0] ? regData : imAddr );
+        = w_number' ( key [0] ? imAddr : regData );
 
     seven_segment_display
     # (

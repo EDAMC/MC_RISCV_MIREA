@@ -21,6 +21,6 @@ module instruction_rom
     logic [31:0] rom [0:SIZE - 1];
     assign rd = rom [a];
 
-    initial $readmemh ("program.hex", rom);
+    initial $readmemh ("memfile.dat", rom);
 
 endmodule
