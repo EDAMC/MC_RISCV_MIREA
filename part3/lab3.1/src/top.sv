@@ -50,9 +50,9 @@ module top
 
     //------------------------------------------------------------------------
 
-       assign led        = '0;
-    // assign abcdefgh   = '0;
-    // assign digit      = '0;
+//     assign led        = '0;
+//     assign abcdefgh   = '0;
+//     assign digit      = '0;
        assign vsync      = '0;
        assign hsync      = '0;
        assign red        = '0;
@@ -65,45 +65,27 @@ module top
 
     //------------------------------------------------------------------------
 
-    wire [ 4:0] regAddr;  // debug access reg address
-    wire [31:0] regData;  // debug access reg data
-    wire [31:0] imAddr;   // instruction memory address
-    wire [31:0] imData;   // instruction memory data
-    
-    //------------------------------------------------------------------------
-    
-    wire cpu_slow_clk;
-    
-    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (1))
-    cpu_slow_clk_i (.slow_clk (cpu_slow_clk), .*);
+    // wires & inputs
+    wire          clkIn     =  clk;
+    wire          rst_n     =  rst;
+    wire          clkEnable =  !key[1];
+    wire [  3:0 ] clkDivide =  4'b0000;
+    wire [  4:0 ] regAddr   =  {1'b0, sw};
+    wire [ 31:0 ] regData;
 
-    //------------------------------------------------------------------------
-
-    sr_cpu cpu
+    //cores
+    sm_top sm_top
     (
-        .clk     ( cpu_slow_clk ),
-        .rst     ( rst      ),
-        .regAddr ( regAddr  ),
-        .regData ( regData  ),
-        .imAddr  ( imAddr   ),
-        .imData  ( imData   )
+        .clkIn      ( clkIn     ),
+        .rst_n      ( rst_n     ),
+        .clkDivide  ( clkDivide ),
+        .clkEnable  ( clkEnable ),
+        .clk        ( clk_out   ),
+        .regAddr    ( regAddr   ),
+        .regData    ( regData   )
     );
 
-    instruction_rom # (.SIZE (64)) rom
-    (
-        .a       ( imAddr   ),
-        .rd      ( imData   )
-    );
-
-    //------------------------------------------------------------------------
-
-    assign regAddr = 5'd10;  // a0
-
-    localparam w_number = w_digit * 4;
-
-    wire [w_number - 1:0] number
-        = w_number' ( key [0] ? regData : imAddr );
-
+    //outputs
     seven_segment_display
     # (
         .w_digit  ( w_digit  ),
@@ -114,11 +96,10 @@ module top
         .clk      ( clk      ),
         .rst      ( rst      ),
 
-        .number   ( number   ),
+        .number   ( regData[15:0]),
         .dots     ( '0       ),
 
         .abcdefgh ( abcdefgh ),
         .digit    ( digit    )
     );
-
 endmodule

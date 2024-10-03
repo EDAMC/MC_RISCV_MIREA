@@ -1,142 +1,131 @@
-//
-//  schoolRISCV - small RISC-V CPU
-//
-//  Originally based on Sarah L. Harris MIPS CPU
-//  & schoolMIPS project.
-//
-//  Copyright (c) 2017-2020 Stanislav Zhelnio & Aleksandr Romanov.
-//
-//  Modified in 2024 by Yuri Panchul & Mike Kuskov
-//  for systemverilog-homework project.
-//
+/*
+ * schoolRISCV - small RISC-V CPU 
+ *
+ * originally based on Sarah L. Harris MIPS CPU 
+ *                   & schoolMIPS project
+ * 
+ * Copyright(c) 2017-2020 Stanislav Zhelnio 
+ *                        Aleksandr Romanov 
+ */ 
 
-module tb;
+`timescale 1 ns / 100 ps
 
-    logic        clk;
-    logic        rst;
+`include "sr_cpu.vh"
 
-    wire  [31:0] imAddr;   // instruction memory address
-    wire  [31:0] imData;   // instruction memory data
+`ifndef SIMULATION_CYCLES
+    `define SIMULATION_CYCLES 120
+`endif
 
-    logic [ 4:0] regAddr;  // debug access reg address
-    wire  [31:0] regData;  // debug access reg data
+module sm_testbench;
 
-    sr_cpu cpu
+    // simulation options
+    parameter Tt     = 20;
+
+    reg         clk;
+    reg         rst_n;
+    reg  [ 4:0] regAddr;
+    wire        cpuClk;
+
+    // ***** DUT start ************************
+
+    sm_top sm_top
     (
-        .clk     ( clk     ),
-        .rst     ( rst     ),
-
-        .imAddr  ( imAddr  ),
-        .imData  ( imData  ),
-
-        .regAddr ( regAddr ),
-        .regData ( regData )
+        .clkIn     ( clk     ),
+        .rst_n     ( rst_n   ),
+        .clkDivide ( 4'b0    ),
+        .clkEnable ( 1'b1    ),
+        .clk       ( cpuClk  ),
+        .regAddr   ( 5'b0    ),
+        .regData   (         )
     );
 
-    instruction_rom # (.SIZE (1024)) rom
-    (
-        .a       ( imAddr  ),
-        .rd      ( imData  )
-    );
+    defparam sm_top.sm_clk_divider.bypass = 1;
 
-    //------------------------------------------------------------------------
+    // ***** DUT  end  ************************
 
-    initial
-    begin
-        clk = 1'b0;
+`ifdef ICARUS
+    //iverilog memory dump init workaround
+    initial $dumpvars;
+    genvar k;
+    for (k = 0; k < 32; k = k + 1) begin
+        initial $dumpvars(0, sm_top.sm_cpu.rf.rf[k]);
+    end
+`endif
 
-        forever
-            # 5 clk = ~ clk;
+    // simulation init
+    initial begin
+        clk = 0;
+        forever clk = #(Tt/2) ~clk;
     end
 
-    //------------------------------------------------------------------------
-
-    initial
-    begin
-        rst <= 1'bx;
-        repeat (2) @ (posedge clk);
-        rst <= 1'b1;
-        repeat (2) @ (posedge clk);
-        rst <= 1'b0;
+    initial begin
+        rst_n   = 0;
+        repeat (4)  @(posedge clk);
+        rst_n   = 1;
     end
 
-    //------------------------------------------------------------------------
+    task disasmInstr;
 
-    initial
+        reg [ 6:0] cmdOp;
+        reg [ 4:0] rd;
+        reg [ 2:0] cmdF3;
+        reg [ 4:0] rs1;
+        reg [ 4:0] rs2;
+        reg [ 6:0] cmdF7;
+        reg [31:0] immI;
+        reg signed [31:0] immB;
+        reg [31:0] immU;
+
     begin
-        `ifdef __ICARUS__
-            // Uncomment the following `define
-            // to generate a VCD file and analyze it using GTKwave
+        cmdOp = sm_top.sm_cpu.cmdOp;
+        rd    = sm_top.sm_cpu.rd;
+        cmdF3 = sm_top.sm_cpu.cmdF3;
+        rs1   = sm_top.sm_cpu.rs1;
+        rs2   = sm_top.sm_cpu.rs2;
+        cmdF7 = sm_top.sm_cpu.cmdF7;
+        immI  = sm_top.sm_cpu.immI;
+        immB  = sm_top.sm_cpu.immB;
+        immU  = sm_top.sm_cpu.immU;
 
-           $dumpvars;
-        `endif
+        $write("   ");
+        casez( { cmdF7, cmdF3, cmdOp } )
+            default :                                $write ("new/unknown");
+            { `RVF7_ADD,  `RVF3_ADD,  `RVOP_ADD  } : $write ("add   $%1d, $%1d, $%1d", rd, rs1, rs2);
+            { `RVF7_OR,   `RVF3_OR,   `RVOP_OR   } : $write ("or    $%1d, $%1d, $%1d", rd, rs1, rs2);
+            { `RVF7_SRL,  `RVF3_SRL,  `RVOP_SRL  } : $write ("srl   $%1d, $%1d, $%1d", rd, rs1, rs2);
+            { `RVF7_SLTU, `RVF3_SLTU, `RVOP_SLTU } : $write ("sltu  $%1d, $%1d, $%1d", rd, rs1, rs2);
+            { `RVF7_SUB,  `RVF3_SUB,  `RVOP_SUB  } : $write ("sub   $%1d, $%1d, $%1d", rd, rs1, rs2);
 
-        regAddr <= 5'd10;  // a0 register used for I/O
+            { `RVF7_ANY,  `RVF3_ADDI, `RVOP_ADDI } : $write ("addi  $%1d, $%1d, 0x%8h",rd, rs1, immI);
+            { `RVF7_ANY,  `RVF3_ANY,  `RVOP_LUI  } : $write ("lui   $%1d, 0x%8h",      rd, immU);
 
-        @ (negedge rst);
-
-        repeat (1000)
-        begin
-            @ (posedge clk);
-
-            if (  regData == 32'h00213d05    // Fibonacci
-                | regData == 32'h1c8cfc00 )  // Factorial
-            begin
-                $display ("%s PASS", `__FILE__);
-                $finish;
-            end
-        end
-
-        $display ("%s FAIL: none of expected register values occured",
-            `__FILE__);
-
-        $finish;
+            { `RVF7_ANY,  `RVF3_BEQ,  `RVOP_BEQ  } : $write ("beq   $%1d, $%1d, 0x%8h (%1d)", rs1, rs2, immB, immB);
+            { `RVF7_ANY,  `RVF3_BNE,  `RVOP_BNE  } : $write ("bne   $%1d, $%1d, 0x%8h (%1d)", rs1, rs2, immB, immB);
+        endcase
     end
+    endtask
 
-    //------------------------------------------------------------------------
 
-    int unsigned cycle = 0;
-    bit was_rst = 1'b0;
-
-    logic [31:0] prev_imAddr;
-    logic [31:0] prev_regData;
+    //simulation debug output
+    integer cycle; initial cycle = 0;
 
     always @ (posedge clk)
     begin
-        $write ("cycle %5d", cycle ++);
+        $write ("%5d  pc = %2h instr = %h   a0 = %1d", 
+                  cycle, sm_top.sm_cpu.pc, sm_top.sm_cpu.instr, sm_top.sm_cpu.rf.rf[10]);
 
-        if (rst)
+        disasmInstr();
+
+        $write("\n");
+
+        cycle = cycle + 1;
+
+        if (cycle > `SIMULATION_CYCLES)
         begin
-            $write (" rst");
-            was_rst <= 1'b1;
+            cycle = 0;
+            $display ("Timeout");
+            $stop;
         end
-        else
-        begin
-            $write ("    ");
-        end
-
-        if (imAddr !== prev_imAddr)
-            $write (" %h", imAddr);
-        else
-            $write ("         ");
-
-        if (was_rst & ~ rst & $isunknown (imData))
-        begin
-            $display ("%s FAIL: fetched instruction at address %x contains Xs: %x",
-                `__FILE__, imAddr, imData);
-
-            $finish;
-        end
-
-        if (regData !== prev_regData)
-            $write (" %h", regData);
-        else
-            $write ("         ");
-
-        prev_imAddr  <= imAddr;
-        prev_regData <= regData;
-
-        $display;
     end
 
 endmodule

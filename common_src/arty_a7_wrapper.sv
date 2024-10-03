@@ -74,29 +74,13 @@ module arty_a7_wrapper
     sr_slow_clk_i  (.slow_clk (slow_clk), .*);
 
     //------------------------------------------------------------------------
-    
-    logic [3:0] digit;
-    wire [$left (digit):0] reverse_digit;
-
-    generate
-        genvar i;
-
-        for (i = 0; i < $bits (digit); i ++)
-        begin : abc
-            assign reverse_digit [i] = digit [$left (digit) - i];
-        end
-    endgenerate
-    
-    logic [7:0] abcdefgh;
-    
-    logic [3:0]  dots = 4'b1111;   
-    logic [15:0] display_data = { reverse_digit, dots, ~abcdefgh };
-    
+        
     sr_driver sr_driver
     (
         .clk        (slow_clk    ),
         .rst_n_i    (rst_n       ),
-        .data_in    (display_data),
+        .digit      (digit       ),
+        .abcdefgh   (abcdefgh    ),
         .sclk       (JA[1]       ),
         .rclk       (JA[2]       ),
         .dio        (JA[3]       ),
