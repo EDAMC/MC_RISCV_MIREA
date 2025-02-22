@@ -70,7 +70,7 @@ module arty_a7_wrapper
 
     wire slow_clk;
 
-    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (500000))
+    slow_clk_gen # (.fast_clk_mhz (clk_mhz), .slow_clk_hz (1_000_000))
     sr_slow_clk_i  (.slow_clk (slow_clk), .*);
 
     //------------------------------------------------------------------------

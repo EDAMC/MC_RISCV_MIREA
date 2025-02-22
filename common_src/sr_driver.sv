@@ -9,28 +9,30 @@ module sr_driver
 
 logic [15:0] ser;
 logic [3:0] cnt;
-
-assign sclk 		 = clk;
-assign dio  		 = ser[0];
+logic rclk_c;
+//
+assign sclk          = clk;
+assign dio           = ser[0];
 assign load_enable   = (cnt == 0);
+assign rclk_c        = (cnt == 1);
 
 always@ (posedge clk or negedge rst_n_i)
     if      (!rst_n_i)     cnt <= '0;
     else                   cnt <= cnt + 1'b1;
 
 always@ (posedge clk or negedge rst_n_i)
-    if      (!rst_n_i)     
+    if      (!rst_n_i)
         ser <= '0;
-    else if (load_enable)  
+    else if (load_enable)
         ser <= data_in;             // load parallel data
-    else 
+    else
         ser <= {ser[0], ser[15:1]}; // serialize parallel data
 
- always@ (posedge clk)
-    if (!rst_n_i)      
+ always@ (posedge clk or negedge rst_n_i)
+    if (!rst_n_i)
         rclk <= '0;
-    else if (cnt == 1) 
-        rclk <= !rclk;
+    else
+        rclk <= rclk_c;
 
 
 endmodule
